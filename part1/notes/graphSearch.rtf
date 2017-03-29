@@ -1,0 +1,82 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1404\cocoasubrtf470
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww15600\viewh10940\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\b\fs36 \cf0 \ul \ulc0 Week 4: Graph search and connectivity\
+\
+
+\b0\fs24 \ulnone To search a graph means to explore each of the nodes without passing through it more than once.  All the algorithms we will see are linear in the number of nodes and vertices: O(n+m).  If there is a path from node \'91v\'92 to node \'91u\'92, then a graph search is guaranteed to find a path.  These algorithms can run on both directed or undirected graphs.
+\b\fs36 \ul \
+\
+
+\b0\fs24 \ulnone A 
+\b generic algorithm
+\b0  partitions a graph into a set of \'92explored\'92 nodes \'91V\'92 and \'91unexplored\'92 nodes \'91U\'92.  Initially, only the start node \'92s\'92 is in V, all the others are in U.  We choose to explore one node u of U that is connected to V by an edge.  u is moved from U to V.  We then repeat the process in a while loop, until U is empty, at which point we have found all nodes with a path from s.
+\fs36 \ul \
+
+\b \
+
+\b0\fs24 \ulnone The 
+\b 2 approaches
+\b0  to this are breadth first a depth first search.  Breadth-first search is useful for finding shortest paths and connected components in undirected graphs.  Depth-first search is useful for computing topological ordering in DAGs and computing connected components in directed graphs.\
+\
+
+\b\fs28 \ul Breadth-first search
+\fs24 \ulnone \
+\
+
+\b0 This considers the graph to be composed of layers of increasing distance from s.  The breadth first search generalises the generic algorithm by choosing to explore all edges from the nodes within layer \'91i\'92 of V that connect to nodes in U before exploring any of the edges from layers >i.\
+\
+This naturally makes use of a queue data structure.  The algorithm is easily implemented using a while loop, where we initialise the queue Q with s, then append all nodes in U connected by s to Q.\
+\
+Q.add(s)\
+while !Q.empty():\
+	v= Q.pop()\
+	for u in v.connections:\
+		if u in U:\
+			Q.add(u)\
+			U.remove(u)\
+	\
+To compute 
+\b shortest path
+\b0 , we can modify the above by adding a distance function d().  We begin by initialising d(s)=0.  Then every time we explore a new node in U (ie: when adding to Q and removing from U), we set d(u)= d(v)+1.  Whenever a node is explored, dist(u) gives the shortest path between s and u.\
+\
+To compute 
+\b connected components
+\b0  (ie: groups of nodes that have a path between each other), we run breadth-first search given a start node s1 until Q is empty.  If U is not empty, we then select a new start node s2 at random from U, then repeat until Q is empty.  This produces the set of all connected components.\
+\
+\
+
+\b\fs28 \ul Depth-first search
+\b0\fs24 \ulnone \
+\
+This method goes as deep as it can (before rediscovering a node) before back-tracking, described as a maze running approach.  It is implementable with a stack structure, or using recursion.\
+\
+Depth-first search provides an O(n+m) algorithm for 
+\b topological ordering
+\b0  (aka sorting) of directed acyclic graphs.  To topologically order, we run a 
+\b DFS-loop
+\b0 , that is, a for-loop over each node that executes a depth-first search starting at the node.  The node contains a Boolean indicator for whether it has been explored. We never execute DFS on an explored node in the loop, so each node is still only explored once (giving us linear time). If DFS is implemented by recursion, then we loop over all the edges radiating out from our source node (having marked our source node as explored before executing the edge-loop), and recurse DFS on any unexplored node linked by one of the edges.\
+\
+The outer DFS-loop is undertaken using whatever arbitrary ordering the nodes have been given, and will find a valid topological ordering (if one exists).  This ordering is given by a global counter \'92n\'92, which is initialised to the number of nodes, and decremented within the DFS function AFTER the recursive call to DFS (where the current node is assigned the counter right before decrement).  \
+\
+In the pure form, the source node \'92s\'92 is cut from the graph as soon as DFS completes for s. This guarantees that when the current n is assigned, it is only ever given to a sink node.  Note that in other applications, we can consider a sink node to be a node with no outgoing edges linked to unexplored nodes.\
+\
+Another prime application is finding
+\b  strongly connected components 
+\b0 of a directed graph. A strongly connected component is defined as a subset of the graph where every node is reachable from every other node within the component.  ie: in the one-way system, every intersection can be reached from every other intersection.  Note that a connected component in an undirected graph is by definition strongly connected (because each road is two-way).  Note also that a strongly connected component may contain only one node, if its out edges never cycle back to its in edges.\
+\
+
+\b Kosaraju\'92s algorithm for SCCs
+\b0 \
+\
+Kosaraju\'92s algorithm finds strongly connected components in linear time using two executions of a DFS loop.  The algorithm requires the ability to easily reverse a graph, to store a finishing time that can easily be used to access nodes in a new ordering, and the ability to set global variables.\
+\
+The algorithm begins by 
+\b reversing
+\b0  the graph.  We then initialise a counter \'92n\'92 to zero.  We execute a DFS-loop on the reversed graph, noting the new ordering of the nodes that is given by the incrementing global counter \'92n\'92 (much as for topological sort above, where it is assigned after the recursive call, although here incrementing instead of decrementing).  The ordering is called the finishing time.\
+\
+We then initialise a second global variable \'92S\'92, that we initialise to null.  return to the original graph and execute a second DFS-loop over the graph using the new ordering given by finishing time.  Whenever the outer loop iterates to a node, we set the \'91leader node\'92 S equal to that node.\
+Within DFS, just before we recurse, we identify this node\'92s leader to be S.  This means that every node reached by recursion from an iteration of the outer loop is given the same leader S.  All members of a strongly connected component will have the same leader node.  A final loop through all nodes could produce a hash table of strongly connected components, pointing to their leader node S and containing the size of the component.}

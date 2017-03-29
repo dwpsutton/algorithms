@@ -1,0 +1,27 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1404\cocoasubrtf470
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\b\fs36 \cf0 \ul \ulc0 Week4 Dijkstra\'92s algorithm and data structures\
+
+\fs28 \
+\ulnone Dijkstra\'92s algorithm\
+\
+
+\b0\fs24 This algorithm finds the 
+\b shortest paths between nodes
+\b0  in directed or undirected graphs where edge lengths can be any non-negative number.  BFS only works if the edge lengths are all identical, as in that case the next edge to check can be found easily by just iterating through a list for the given layer.\
+\
+Dijkstra\'92s algorithm considers the graph to be split between the explored part that contains the source and the unexplored part that contains the destination.  Each explored node \'91i\'92 contains a path length P(i), which is the minimum distance from the source to node i.  The next node to explore at any given iteration should be an edge that connects an explored node to an unexplored node.  The best choice is to choose, for all edges i -> j, where i is explored and j is unexplored, the edge where 
+\b P(i) + edgeLength(i,j) is minimum
+\b0 .  So the minimum over all explored nodes of the edge length plus the shortest path to the node.\
+\
+Naively, this has an O(nm) 
+\b implementation
+\b0 , as for each node we \'91explore\'92, we must check over all edges to find the best choice.  A faster 
+\b O(m log n) algorithm uses
+\b0  
+\b heaps
+\b0  to store the node and edge info.  As all heap search operations (including insert and min) are O(log n), and we at most only ever have to check consume an edge once, so we have to do m sets of O(log n) heap operations.}

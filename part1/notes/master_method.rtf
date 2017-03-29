@@ -1,0 +1,41 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1404\cocoasubrtf470
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww28600\viewh15280\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\b\fs24 \cf0 \ul \ulc0 Lesson 1: The Master Method\
+\
+
+\b0 \ulnone This approach allows us to determine the scaling of any recursive algorithm.  We consider the work done due to a recursion as:\
+\
+T(n) = a * T(n/b) + O(n^d)\
+\
+Here \'91a\'92 is the number of subproblems proliferated during a recursion.  \'91b\'92 is the subproblem shrinkage factor, such that n/b is the size of each subproblem.  O(n^d) is the scaling of work done for each subproblem.\
+\
+How do we turn this into a scaling?  The first step is to consider the total work done at a single level, then over all levels.  At a level \'91j\'92, we have:\
+\
+work = a^j * [ n / b^j ]^d\
+\
+	= n^d + [ a / b^d ]^j\
+\
+\
+Over all log_b(n) levels, we have:\
+\
+work = n^d * SUM_[over j=0 to log_b(n) ] \{ (a / b^d)^j \}\
+\
+\
+Now we can consider 3 different cases:\
+\
+1) a = b^d, then work= O(n^d log_b(n) )\
+	If the ratio in the sum is unity, such that a = b^d, then the sum is simple some constant time 	log_b(n). Therefore our scaling is O(n^d log_b(n) )\
+\
+2) a < b^d, then work = O(n^d)\
+	If the ratio in the sum is less than unity, such that a < b^d, then each new term in the sum is 	getting smaller, the series is converging to a constant regardless of the number of terms.  So our 	work is set by the work outside of the sum, O(n^d).  Intuitively, this means the work done at the root \
+	is dominating.\
+\
+3) a > b^d, then work= O( n^( log_b(a) ) )\
+	If the ratio in the sum is greater than unity, such that a > b^d, then the amount of work in each new\
+	term in the sum adds more work than its predecessors.  The final term then is the dominating term, \
+	with n^( log_b(a) ), so this sets the big oh scaling.  Intuitively, as log_b(n) is the number of levels, then\
+	n^( log_b(a) ) is the number of leaves, so the scaling is dominated by the number of leaves we end with.}

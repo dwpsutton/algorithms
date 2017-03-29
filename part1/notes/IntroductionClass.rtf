@@ -1,0 +1,47 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1404\cocoasubrtf470
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 Quick notes on lesson 1:\
+\
+Divide and conquer paradigm is a powerful one: split a problem into smaller subproblems and solve those.  This leads to recursive solutions, which always require a base layer for when the problem is one element.\
+\
+We analysed the \'91grade-school\'92 (primary school?) algorithm for integer multiplcation (long multiplication).  If we multiply two numbers of n elements, this is an n^2 algorithm.  Another one was suggested : the 
+\b Karatsuba
+\b0  algorithm.  Here we say for a number with n elements:\
+\
+x= a*10^(n/2) + b\
+y= c*10^(n/2) + d\
+\
+xy= ac * 10^n + ( ad + bc ) * 10^(n/2) + bd\
+noting that having calculated ac and bd, that:\
+ ad + bc = (a+b)(c+d) - ac - bd\
+\'85so we only need to to 3 recursive calls to the xy function.\
+\
+We discussed the 
+\b mergeSort
+\b0  algorithm as the canonical example of divide and conquer.  This algorithm splits the array into two equal sized sub-problems, which are sent to the recursive sort calls, then these are merged.  As they are sorted, the merge operation scales as O(n), as we only need to compare elements sequentially from the two arrays, at most doing a linear number of comparisons.  This represents the work per level, and there will be log_2 n levels.  At each level, we have 2^n sort operations called, but the size of the arrays going into each is n / (2^n).  So each level has scaling O(n).  Hence the whole problem has O(nlogn) scaling.\
+\
+Regarding scalings, we analyse hereafter using the following 
+\b 3 principles
+\b0 :\
+1) Assume the worst case scenario (ie: all problems have to be solved).  Other options would be the average case scenario (eg: all arrays equally likely), or using a set of typical benchmark tests.  These options require domain knowledge/judgement.\
+2) Ignore constant or additive terms\
+3) Consider the asymptotic case.\
+\
+As an example, mergeSort is faster than the O(n^2) insertion sort, but actually there are fewer total operations for any array smaller than about 80 elements in the insertion sort.  However, mergeSort wins out asymptotically.\
+\
+\
+\
+Lesson 2:\
+\
+
+\b Big Oh notation
+\b0 .  Formal definition.  Something has scaling O(f(n)) if there exists constants [ c, n_0 > 0 ] where T(n) <= c f(n), for all n >= n_0\
+\
+It is therefore natural to exclude lower powers of n for asymptotic case.  n is always positive, so any function with a highest power n^k can replace lower powers of n with n^k and still not scale faster than n^k.\
+\
+\
+There are also Omega notation (lower bound, rather than Big-oh\'92s upper bound, so there exists constants where time T(n) >= c f(n) ), theta notation (both Big-Oh and Theta have the same scaling, so there exist constants c_1 and c_2 where: c_1 f(n) <= T(n) <= c2 f(n) ), and little oh notation (replace exist a constant c with all constants c).}

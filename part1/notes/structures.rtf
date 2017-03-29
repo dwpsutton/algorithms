@@ -1,0 +1,151 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1404\cocoasubrtf470
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww28600\viewh15280\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\b\fs36 \cf0 \ul \ulc0 Data Structures
+\b0\fs24 \ulnone \
+\
+
+\b\fs28 Heaps
+\b0\fs24 \
+\
+Heaps are structures implemented as a balanced binary tree, where each level of the tree must contain values that are smaller than its parents.  So if I am a node with value 6, then my two children must have value >= 6, and my parent must have a value of <=6.  The root node of the tree is the minimum value of the heap.  This ordering is known as the 
+\b heap property,
+\b0  and it can be implemented in reverse to support a maximum root as well.\
+\
+Heaps support two operations: 
+\b insert
+\b0  and 
+\b extractMin
+\b0 .  Each of these operations is 
+\b O(log n)
+\b0 .  With this in mind, heaps can be used for several applications:\
+	\
+	
+\b heapSort
+\b0  uses a heap to store the array being sorted.  Essentially, n calls of extractMin are 	executed to build the sorted array up element by element. As extractMin is O(log n), heapSort is 	O(n log n).\
+\
+	
+\b Online medians 
+\b0 can be calculated for a stream by storing info in 2 heaps, one min heap and 	one max heap.  If the new element is larger than minHeap, put in min heap.  If it is smaller than 	maxHeap, put it in maxHeap.  The median will always be the root of one of these heaps 	(depending on their sizes).  To maintain this, sometime it is necessary to pull up numbers from 	one heap and put it in the other heap in order to maintain balance.\
+\
+	
+\b Priority Queue
+\b0 : keeping the next most important object as the next in the queue.  This is the 	structure used for Dijkstra, but is also used for event management (eg: in computer games).\
+\
+Heaps can be 
+\b implemented in an array
+\b0 .  As we fill each level of the tree from left to right in layers, we know that the parent of an odd leaf \'91i\'92 is floor(i/2) and the parent of an even leaf \'91j\'92 is j/2.  Likewise the children of \'91k\'92 are 2k and 2k+1.\
+\
+The operation to 
+\b insert
+\b0  proceeds as follows.  We insert a new element at the end of the array, so it fills the correct place in the current level.  We then check if the heap property is violated: whether then new element is smaller than its parent.  If so, we bubble it upwards to replace the parent.  The heap may still be violated if the replaced parent is still smaller than its parent, in which case we bubble up again (and repeat until there is no heap violation).  At most we need m-levels bubble-ups, which is O(log n).\
+\
+The operation to 
+\b extractMin
+\b0  proceeds in the opposite way.  We extract the root of the tree, then check the two children and allow the smallest to takes it place.  This would leave us with 3 children which is non-binary, so we must bubble down and extract the min of the sub-tree of the node that we promoted to root.  This will re-order the tree by moving one element up per level (two comparisons per level), which is O(log n).\
+\
+\
+
+\b\fs28 Balanced Binary search trees\
+
+\b0\fs24 \
+The 
+\b binary search tree property
+\b0  is that the keys of nodes in the left subtree of a root node are all smaller than the key of the root.  Conversely, the keys in the right subtree are all larger than the roots key.  This property is held recursively for all nodes in the tree.\
+\
+This supports most operations with an O(log n) time:  \
+	
+\b Search
+\b0  (lookup): we just compare the root key to our target then recurse on the left or right hand 	tree until we find our target OR we find a null pointer (failed search). \
+	
+\b Insertion
+\b0 : we first search for the key.  If it is not found, we place it in the location of the null 	pointer returned by our search.\
+	
+\b Max
+\b0  (min): Recursively check the right (left) hand subtrees until a null pointer is found for the 	next right subtree.  That node\'92s value is the max (min).\
+	
+\b Predecessor
+\b0  (successor): If the node has a left subtree, find the maximum value in the subtree.  	If there is no left subtree, check parents recursively until you take your first trip to a parent from 	a right  hand child.  That parent node is the predecessor.  For successor, swap directions of 	whole process. \
+	
+\b Deletion
+\b0 : If the node has no children, just delete it.  If it has a single child, promote the child to 	replace the node.  If it has two children, find the predecessor of the node (see above) and 	replace the node with the predecessor.\
+	
+\b Selection
+\b0 : can be supported in O(log n), avoiding in order traversal, by augmenting the s	tructure 	with extra info: the size of the tree held beneath the node.  This requires 	housekeeping for insertion and deletion, but it is still O(log n) for those operations.  To find i-th 	statistic, recurse left if size of the subtree < i.  If size > i, then add the left subtree size to all 	future computations and travel onto right subtree, until we get a total = i.\
+\
+An
+\b  in-order traversal
+\b0  can be completed in O(n) by recursively: explore the left hand subtree then explore the right hand subtree.\
+\
+Note: if the tree is imbalanced, the height can be greater than log n.  In fact, worse case scenario is that we have only left or only right subtrees at each level.  Then the tree height is n (linked list).  Some checking or assumption about the randomized nature if insertion may be necessary.\
+\
+
+\b\fs28 Red-black trees\
+
+\b0\fs24 \
+Red-black trees are binary search trees with 4 additional properties that assert that the 
+\b tree is balanced
+\b0  and that the height of the tree is log(n).  The four red-black invariants are:\
+	1. Nodes can be red or black\
+	2. The root node must be black\
+	3. No two red nodes can link to each other (red nodes have black children and parents)\
+	4. All failed searches must have paths passing through the same number of black nodes.\
+\
+These properties guarantee balancing.  If all nodes were black, then we would by definition have the same number of black nodes for all failed searches, so the failed searches are at the bottom, we have a full balanced tree with height <= log(n-1).  If we have red nodes, then we require no two red nodes in a row, so at most we add another log(n-1) red nodes, so the tree height is <= 2 log(n -1)\
+\
+Insertion into a red-black tree is complicated and only a brief high level view is given.  We begin by inserting as in a normal tree, colouring the node red.  If the node has a black parent, job done.  If it has a red parent, we need to solve the violation of red black properties.  Our two tools are to change the colour of a node, or two rotate nodes.  A left 
+\b rotation
+\b0  proceeds as follows:\
+	- The parent of a node k should be remapped to point to the right child of node k, such that the right child now is parent of the node k and k only has a left child.\
+	- If the right child originally had no left child of its own, we still have tree, as k is now the left child of the original right child.   If it did have a left child, then it now has two left children which is violates tree structure.\
+	- The original left child of the original right child can now be remapped as the right child of the original node k.\
+\
+Two solve the red black violation, we relabel the new node (and any sibling) black and push the red up a level to the parent.  This can be repeated until either we get to the root node, which we keep black, or we no longer have two reds in a row, or we have layer with a black uncle, so we can rotate.\
+\
+\
+
+\b\fs28 Hash tables
+\b0\fs24 \
+\
+Support O(1) lookup, which for the right problems can render impossible problems possible (eg: where all possibilities cannot be enumerated because the \'91universe\'92 of possible values is too big, but the actual set of values taken is not).  
+\b 2Sum problem
+\b0  is a great example of how algorithms can be sped up by using the constant time lookup property.\
+\
+When hashing, 
+\b collisions
+\b0  are inescapable.  The \'91birthday paradox\'92 illustrates the problem, where only 23 people are needed before we have a 50% of a birthday collision.  Typically, the number required for a collision is the square root of the number of possible values (as for n examples, we have O(n^2) pairs).  To deal with collisions when they happen, we can either build a list of alternatives should multiple keys point to the same bucket (so each bucket contains a linked list, called 
+\b chaining
+\b0 ), or we can use 
+\b open addressing
+\b0  (ie: if a bucket is full, we use 2* the buckets position).\
+\
+However collisions are dealt with, minimising their number is crucial.  A badly designed hash function will lead to many collisions.  If everything pointed to one bucket, then our hash table is actually a linked list!  Examples of bad hash functions are easy to dream up (eg: first 4 numbers of a telephone number, the mod of a number where only even numbers get filled).  In general, good hash functions will turn the universal key into an integer (hash code), then compress the integer so that the actual space used by the memory array underlying the hash function is minimised).\
+\
+All hash functions possess 
+\b pathological datasets
+\b0 .  This is a fundamental property, not a feature just of bad hash functions.  This can be seen by noting that if we have a possible space N, and a number of buckets m, where m << N, then there exists a bucket with number of entries b >= N/m.  A pathological dataset would be a dataset containing elements all drawn from that bucket.  Crosby and Wallach (2003) showed that they could reverse engineer pathological datasets for poor hash functions used in web routing.\
+\
+To reduce the chances of encountering a pathological datasets (either randomly or in an adversarial setting), we can either use a 
+\b cryptographic
+\b0  hash function (like SHA-2), which is unfeasible to calculate a pathological dataset for, or use a 
+\b randomised hash function
+\b0 .  This latter approach defines a family of normal hash functions and the choice over which hash function to use is made randomly.  One can show that the probability of encountering a pathological dataset is vanishingly small.\
+\
+\
+\
+
+\b\fs28 Bloom filters\
+
+\b0\fs24 \
+Bloom (1970), can construct a filter that will tell you whether you have a seen an object before, with zero probability of a false negative but 
+\b non-zero probability of a false positive
+\b0 . This can incredibly reduce space requirement for large sets.  The approach is to use k hash functions to store a dataset S with cardinality |S|, and a storage array of \'92n\'92 bits initialised to zero.  To 
+\b insert
+\b0  a new datapoint, we put the datapoint through the k hash functions to get indices for the storage array and set those array elements to 1.  For 
+\b lookup
+\b0 , we return True if all the elements in A returned by our k hash functions are 1.\
+\
+What is the probability of a false positive?  For any individual bit in the storage array, the probability of having a 1 after passing through dataset S is  = 1- (1-1/n)^(k |S| )  ~ 1 - e^( -k |S| / n), where we have used a Taylor expansion to first order.  For a false positive, we require all k bits from each hash function to be set, so the error rate E ~ ( 1 - exp(-k |S| /n) )^k.  We can note that n / |S| = b, the number of bits per element of S, so that E ~ (1-exp( -k / b) )^k.  Minimising E for fixed storage b, k = (1/2)^(ln(2) b).  For b=8, we would need k=5 or 6 to get an error rate of 2%.}

@@ -1,0 +1,51 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1404\cocoasubrtf470
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\b\fs28 \cf0 \ul \ulc0 Contraction algorithms for MinCut\
+\
+
+\fs24 \ulnone Data structures
+\fs28 \ul \
+
+\b0\fs24 \ulnone For a graph with n node and m edges, we can store this in an adjacency matrix with space requirement O(n^2), or an adjacency list with requirement O(n+m).  The adjacency list contains a list of all the nodes, whose elements point to all the edges that link to that node, which has space n+m.  There is also a list of all the edges, whose elements point to all the nodes it connects to, which also has space m+m.\
+\
+
+\b Karger algorithm
+\fs28 \ul \
+\
+
+\b0\fs24 \ulnone Karger (early 90\'92s).  Computes the minimum cut on the graph, that is, the subset of two sub-graphs with the minimum cross-linkage.  Useful for community detection.\
+\
+The algorithm works by randomly choosing an edge, merging the two nodes connected to the edge, then removing any resultant self-loops.  This has a low (but better than expected) probability of success, so the algorithm is repeated until failure probability becomes negligible.\
+\
+
+\b Proof
+\b0 :  Consider the probability of failure (merging across the min cut) when randomly choosing an edge.  The failure probability is k/m, where m is the total number of edges and k is the number of edges spanning the minimum cut.  \
+\
+The minimum degree of the nodes in the graph is k (otherwise the best would simply cut off the node).  The sum of all degrees then must be >= kn.  The sum of degrees is also = 2m, because each edge contributes 1 to two node\'92s degrees.  Therefore:\
+\
+k <= 2m/n\
+and\
+P(failure1) = k/m <= 2/n\
+\
+The next iteration has P(failure2 | success1 ) =  2/(n-1)\
+\
+If we multiple conditional probabilities, we have \
+\
+P(failure2 | !failure1)P(!failure1)= (1- 2/(n-1) ) * (1-2/n)\
+\
+Over all iterations, we have terms up to (1- 2/ ( n-(n-3) ) ),  as the final iteration removes the (n-3)th edge.  Cancelling terms within the product leads to:\
+\
+P(success) <=  2/ ( n(n-1) ) <= 1/n^2\
+\
+P(failure) <= 1- 1/n^2\
+\
+We can conduct multiple trials with binomial P(failure) = 1-1/n^2, and determine the number needed to get a vanishing failure probability, ie: want N where (1-1/n^2)^N is small.  Using the result that  e^x >= 1+x for all x (ie: Taylor expansion, gradient + intercept at x=0), then we get:\
+\
+1-1/n^2 = ( e^(-1/n^2) )^N\
+\
+If N= n^2 ln(n), then   P(all_fail) <= (1/e)^ln(n) = 1/n\
+}

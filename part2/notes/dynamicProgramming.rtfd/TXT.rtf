@@ -1,0 +1,182 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1404\cocoasubrtf470
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww17900\viewh15280\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\b\fs36 \cf0 \ul \ulc0 Dynamic Programming\
+
+\b0\fs24 \ulnone \
+
+\b\fs28 Principles:
+\b0\fs24 \
+\
+The problem must be breakable into a small number of sub-problems.\
+\
+The solution of a \'91larger\'92 sub-problem must be straightforward to compute, given the solution of previous \'91smaller\'92 subproblems.  This is usually implemented via recursion.\
+\
+The overall solution must follow from the solution of all the other subproblems.  Usually, the overall problem is merely the largest subproblem.\
+\
+
+\b\fs28 Simple examples:\
+
+\b0\fs24 \
+First example is with finding the 
+\b maximum weighted independent set
+\b0  in a path graph.  A path graph is basically a linked list.  An independent set is a set of vertices where no adjacent vertices are chosen.  The max weight independent set is the independent set of vertices with the largest sum of weights.  The optimal solution is found by considering that node v_n is either excluded from the optimal solution, because adding this vertex weight to the optimal solution up to n-2 is less than the optimal solution up to n-1, or included because this vertex weight plus the optimal solution up to n-2 is more than the optimal solution up to n-1.  With memoization, this can be calculated sequentially in linear time.  Without it, it grows exponentially and is a brute force search.\
+\
+Concretely, the addition to the max weight is given by:\
+A[i]= max( A[i-1], A[i-2]+w_i )\
+\
+where A is a hash map.\
+\
+Nb: also true for the 
+\b Fibonacci sequence
+\b0 , where we use A[i]= A[i-1]+A[i-2].\
+\
+\
+
+\b\fs28 Knapsack problem
+\b0\fs24 \
+\
+Here we have n items, each with value v_i and weight w_i.  The task is to fill the knapsack with the highest sum value of items whose weight is beneath the knapsack capacity W.  We know that each item will either be included in the optimal knapsack, or excluded.  However, we have two dimensions to consider: the number of the item, and the residual capacity left in the knapsack at the time we consider it.  \
+\
+We have two choices when considering an item i with a given residual capacity x.  Either we include the item, or exclude it.  If we exclude, we are keeping the previous best solution A[i-1,x].  If we include, we are adding this item\'92s value v_i (and its weight) to the optimal solution that allows it to be added, ie: A[i-1,x-w_i].  \
+\
+We therefore are taking the following A[i,x]= max( A[i-1,x] , A[i-1, x-w_i] + v_i )\
+This can be implemented in O(nW) time with a double for loop, incrementing through n and W.  Graphically, the solution can be understood with the following n*W grid:\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf0 {{\NeXTGraphic Pasted Graphic.tiff \width19600 \height12920
+}¬}\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf0 \
+\
+\
+
+\b\fs28 Optimal Alignment
+\b0\fs24 \
+\
+We have two strings of lengths n and m.  What is the best way of aligning strings so that the same character is present in both strings?  For each position, either we align string 1 and 2, or we align string 1 with a gap, or align string 2 with a gap.  It is pointless to align 2 gaps!  Assume that aligning with a gap has some cost k. Also assume we can align strings with no cost if they are the same, or larger cost if they are different,  ie:\
+ L(i,j) = 0       string_i == string_j,\
+            k+1   otherwise\
+\
+Our total cost at i,j will be:\
+\
+P(i,j)= min( P(i-1,j-1) + L(i,j)   ,  P(i,j-1) + k,  P(j,i-1) + k )\
+\
+This runs in O(nm) time and can be proven optimal by induction.\
+\
+
+\b\fs28 Optimal binary search trees\
+
+\b0\fs24 \
+If you know the frequency of elements, then an optimal binary search tree minimizes the expected look up time for a randomly selected sample.  This is similar to the problem of the Huffman code, except that we must retain the search tree structure as an extra constraint, which complicates matters.  These trees are not necessarily balanced (balanced binary search trees can provide reasonably general lookup time, cf: red-black trees).  The lookup time is the sum of element frequencies times the depth through the tree you must traverse in order to find the leaf with that element in.\
+\
+We might consider a greedy algorithm for optimal search trees, much as we did for Huffman codes.  However, it is easy to see that either a top-down or bottom-up greedy algorithm can produce non-optimal search trees based on as few as 4 possible inputs.  This provides simple disproof by counter-example.\
+\
+Instead we proceed recursively using dynamic programming, using the key observation that if a sequence of elements i - j can be represented by an optimal binary search tree P1, and a suffix sequence of elements (j+1)-k has an optimal search tree P2, then any new root node that spans i-k and has P1 and P2 as children is also optimal.\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 {{\NeXTGraphic 1__#$!@%!#__Pasted Graphic.tiff \width17240 \height4600
+}¬}\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf0 \
+We begin with n individual leaf nodes.  We then consider the optimal search tree that contains pairs of consecutive elements (in order), ie: i:i+1.  Then triplets, i:i+2.  This double loop is over 0< i <n and 0 < s < j-i.  Pictorially:\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 {{\NeXTGraphic Pasted Graphic 1.tiff \width12920 \height6160
+}¬}\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+\'85we are exploring the diagonals in the upper left quadrant of i-j space.  To fill in the final subset (1:n, the top left), we must consider all combos of A(0:i) and A(i+1:n), which is n possibilities, but all of these possibilities are on previously calculated diagonals.\
+\
+In terms of scaling, this means we are exploring O(n^2) potential sequences, with an O(n) minimisation time for each i,j combination, so the algorithm has O(n^3) scaling to optimise the tree.  This limits the number of elements that can be reasonably considered!  Knuth and Yoo have developed O(n^2) algorithms based on reducing the number of combinations that can be considered for each i,j elements, reducing the minimisation to constant time per i,j.\
+\
+\
+\
+
+\b\fs28 Single source shortest path (Bellman-Ford)
+\b0\fs24 \
+\
+We have a great O(m logn) solution for this in Dijkstra\'92s algorithms, assuming that we have no negative edge weights.  If we do have negative edge weights, we can use another algorithm: the Bellman-Ford algorithm.  This will find a shortest path between two vertices, 
+\b assuming that there is no negative cycles
+\b0  reachable from the source vertex.  If there is such a negative cycle, Bellman-Ford will detect it for you.\
+\
+A negative cycle renders the shortest path problem undefined: the best path in such a case is one that stays in the negative loop infinitely long and the shortest path becomes negative infinity\'85\
+\
+The Bellman-Ford algorithm splits the problem into 
+\b smaller sub-problems
+\b0 , asking what is the shortest path from s-v (for all other vertices v in the graph) that contains i or fewer edges.  The maximum number of edges that we can have between two vertices without a negative cycle will be n-1.  So we need to iterate up through the number of allowed edges in the path, and find the shortest path to each vertex in the graph.  This iteration is a double for loop, with i=1:n-1 and v=1:n.\
+\
+We consider a subproblem solution to be the length L(i,v).  The base case is the length from source to source:  L(0,s) = 0.  All other lengths are initialised to infinity.\
+\
+At each step i, we can either accept the shortest path to v from a previous iteration with fewer edges L(i-1,v), or accept a new shorter path with i edges, in which case: L(i,v)=  L(i-1,w) + c(w,v)   , where c(w,v) is the weight of an edge from w to v.  This means we have 1+in_degree(v) possible shortest path candidates to check in this iteration for vertex v.  Formally, we take L(i,v)= min( L(i-1,v), L(i-1,w)+c(w,v) ).\
+\
+Note that we cannot reverse the order of the for loops in this algorithm (unlike our previous dynamic algorithms), as the requisite sub-problems will not have been completed.\
+\
+The 
+\b running time
+\b0  for this is O(nm).  While we have O(n^2) sub-problems, we are not doing linear work for each sub-problem: it depends on the in-degree of v.  However, as we are doing a sum over vertices of the in-degrees, this equals the total number of vertices (in a directed graph).  So the inner loop is actually doing O(m) work.\
+\
+The following 
+\b optimisations
+\b0  can be made: \
+- If you iterate from i-1 to i and find no vertices have updated shortest paths, L(i,v) != L(i-1,v), then you may terminate as all shortest paths have been found.\
+- You can save on you O(n^2) space requirement by forgetting the shortest path info for iteration j<i-1, giving a O(n) space requirement.  However, you lose the ability to reconstruct shortest paths.  This can be retained cheaply by storing path pointers.\
+\
+A negative cycle can be detected by running one further iteration: checking if L(n,v) <= L(n-1,v) for any vertices.\
+\
+\
+
+\b Aside
+\b0 : this algorithm is used in some
+\b  internet routing protocols
+\b0 .  It can be calculated in a distributed way, by moving from pull-based to push-based mode.  If you have asynchronicity, it may be that you need to solve L[i,v] before all the L[i-1,v] are done.  In push based approach, each vertex informs its neighbours of any update, rather than each vertex requesting finalise shortest path info from its neighbours.  This is the basis of RIP and RIP2 protocols.  \
+\
+\
+
+\b\fs28 All pairs shortest path
+\b0\fs24 \
+\
+Not a quick problem to solve.  In the absolute best case for a sparse graph with positive only weights, we could run Dijkstra\'92s algorithm for each source vertex, effectively O(n m log n), which varies between O(n^2 logn) and O(n^3 logn) depending on graph density\
+\
+The 
+\b Floyd-Warshall
+\b0  algorithm runs in O(n^3) time, and only assumes no negative cycles.  We begin by randomly ordering nodes.  For each possible start (i) and end (j) node, we cycle up through the ordering of other nodes, k= 1\'85n.  What is the shortest path between i-j containing only those nodes with index <= k?  If that path does not contain k, then the shortest path at step k-1 remains the shortest path.  Otherwise, if the path contains k, then we form a new shortest path by adding the i-k path to the k-j path.\
+\
+To program this, we fill in a 3D array, where dim 1 is start, dim 2 is end, and dim 3 is k.  We initialise by noting that A[i,j,0] is infinity if i and j are not directly connecting, c(i,j) if they directly connect, and 0 if i=j.\
+\
+After initialisation, we execute the triple for loop:\
+\
+for k= 1,n\
+    for i= 1,n\
+        for j=1,n\
+             A[i,j,k]=  min(  A[i,j,k-1] , A[i,k,k-1] + A[k,j,k-1] )\
+\
+The k loop must be on the outside, as we require the k-1 step (the smaller subproblem) to have been solved first.\
+You can reconstruct the shortest path by filling in a second array, B[i,j], which contains the highest k on the path between i and j.  This will have been the last path node added.  You can then get the next-last nodes added by querying i-k and k-j\'85.  This you recurse.\
+You can check for negative cycles by checking the diagonal of A, ie: A[i,i,n].  If there is a negative cycle, then one of the i-i diagonals will have negative value.\
+\
+   \
+The 
+\b Johnson algorithm 
+\b0 applies a re-weighting trick that removes negative edge lengths, allowing us to run Dijkstra\'92s algorithm n times to get all-pair-shortest-paths.  The re-weighting step requires one execution of the Bellman-Ford algorithm.\
+\
+Our re-weighting adds a certain length to each edge to make it non-negative.  We considered this before, noting that if we add a constant to each edge, then we do not preserve shortest paths, as a path with 3 edges adds 3k, a path with 1 edge adds 1k etc\'85  Instead, we must find a way to reweight while preserving path lengths.  This can be done if we assign a value p_i to each vertex i, and change the edge weight for edge u-v as: \
+\
+c\'92(u,v)= c(u,v) + p_u - p_v.\
+\
+So doing, any path from any start node s to end node d will have some edge lengths P\'92(s,d)= sum of edges over the path = sum_p( c\'92 ) = p_s - p_d.  Which means we can always reconstruct the true path length in the modified graph G\'92, and that all paths from s to d have the same delta wrt to their true lengths (invariant addition/subtraction for all paths s-d).\
+\
+How do we find the vertex values p?  What we require is a value that denotes the shortest path to that node from anywhere else in the graph, if there is a negative path, or zero otherwise. Imagine we add an auxiliary node, s, which connects to ALL other nodes in the graph with an edge of length 0.  We could run Bellman-Ford to get the shortest path s-v for all v in the graph.  Either the direct s-v path is chosen, in which case the shortest path is 0, or we have negative incident edges (or chains of them) that give us a negative shortest path s-v via other nodes.  We set our p_v equal to this value.\
+\
+Why does this work?  It guarantees that each edge becomes non-negative.  Proof:\
+Consider 3 vertices, our auxiliary, s, and two typical nodes v and u (which have a connecting edge).  We have a shortest path s-u which produces vertex value p_u, and a shortest path s-v, which produces vertex value p_v.  \
+The path from s-v via u has length P_uv + c(u,v).  By definition, this cannot be shorter than p_v.  So:  p_v <= P_uv + c(u,v)\
+Therefore: c\'92(u,v) = c(u,v) + p_u - p_v >= 0.\
+\
+Now we have all non-negative lengths, where all paths between any pair u-v have the same known delta, we can simply run Dijkstra\'92s algorithm for each node as a source.\
+\
+\
+\
+}

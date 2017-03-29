@@ -1,0 +1,39 @@
+import numpy as np
+
+v= range(7)
+f= [0.05,0.4,0.08,0.04,0.1,0.1,0.23]
+print sum(f)
+
+class myArray():
+    def __init__(self,n):
+        self.n= n
+        self.A= {}
+        for i in range(n):
+            self.A[i+1]= {}
+            for j in range(n):
+                self.A[i+1][j+1]= 0.0
+        return None
+    def assign(self,i,j,val):
+        if i<=j:
+            self.A[i][j]= val
+        return None
+    def mquery(self,i,j):
+        if max([i,j]) > self.n:
+            print i,j,'problem'
+        if i>j:
+            return 0.0
+        else:
+            return self.A[i][j]
+
+
+A= myArray(7)
+for s in range(1,8):
+    for i in range(1,8):
+        minime= []
+        for r in range(i,i+s+1):
+            if r <= 7:
+                minime.append( f[r-1] + A.mquery(i,r-1) + A.mquery(r+1,i+s) )
+        A.assign(i,i+s,min(minime))
+
+print A.A
+

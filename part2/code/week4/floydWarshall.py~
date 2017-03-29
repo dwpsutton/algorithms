@@ -1,0 +1,13 @@
+
+def main():
+    Read the graph (ie: initialise A)
+
+    Execute for loop
+
+    Check for negative cycle
+
+    return shortest pair path
+
+
+if __name__=="__main__":
+    main()

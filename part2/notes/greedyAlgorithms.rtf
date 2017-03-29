@@ -1,0 +1,128 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1404\cocoasubrtf470
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww28600\viewh15280\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\b\fs36 \cf0 Greedy algorithms\
+
+\b0\fs24 \
+This is an algorithm design paradigm, much like divide and conquer and randomized algorithms that we have seen.  Will also cover dynamic programming later in the course.\
+\
+Take myopic view: take the decision that has lowest cost now. Tend to be easier to calculate scalings for.  Proof of 
+\b correctness
+\b0  is important: greedy algorithms often intuitively seem to work, but are not actually correct.  Proofs can proceed by induction, or by exchange (we change something to turn our solution into optimal or the other way round).\
+\
+
+\b\fs28 Job scheduling algorithm\
+
+\b0\fs24 \
+We have n jobs, each with a runtime L_i and a weight of importance w_i.  The completion time of a job is the sum of all runtimes of previous jobs plus this job: C_i= SUM_(j<i) L_j.\
+\
+The objective is a schedule of jobs that minimised the weighted sum of completion times:\
+\
+min\{ SUM_i  w_i C_i \}\
+\
+The optimal algorithm is one that is ordered in decreasing order of ratio w_i/L_i .\
+\
+To prove this, we consider an order where w_i/L_i always decreases.  If we 
+\b exchange
+\b0  two elements, i and j, then elements k before i and after j are unaffeceted.  i will increase in contribution to the cost by w_i L_j, j will decrease in cost by w_j L_i.  In order for this to benefit the cost, we require:\
+\
+w_i L_j < w_j L_i\
+w_i / L_i < w_j L_j\
+\
+which 
+\b contradicts
+\b0  our decreasing order assumption.  QED\
+\
+\
+\
+A variation on this is 
+\b minimum max lateness scheduling
+\b0 .  We have a list of jobs of certain length, each with a deadline.  We wish the maximum lateness between a jobs end time and start time to be minimised.  This is achieved by a greedy algorithm scheduling jobs with the soonest deadline first.  This can be proved by exchange.  If we have two adjacent scheduled jobs, i and j, where deadline dj < di, then we have an inversion.  Either ordering has zero impact on jobs <i or >j, only these two jobs matter.  The start time of the first job remains s, and the endtime of the second job remains e.  In our inverted order, the job j has end time e.  In our corrected order, job i has end time e.  As dj < di, then e-di < e-dj, so the correction always reduces the max lateness. QED\
+\
+\
+\
+
+\b\fs28 Minimum spanning trees\
+
+\b0\fs24 \
+An MST is a tree that spans all the vertices in an undirected graph with minimum path lengths.  Assume graph is connected and edge lengths are distinct (no ties).\
+\
+
+\b Prim\'92s algorithm 
+\b0 for an MST starts with a graph G, with X being the explored nodes (initialise with any single node).  At each iteration, add the edge with minimum cost that connects V with G-V, then subsuming the destination node of the edge into V.  To prove this correct, we need to know it is a tree, that it spans, and that it produces the minimum one.\
+\
+It is a tree because once a node is brought into V, no other edge ending in the node can be incorporated into the tree.\
+\
+It spans because if we don\'92t have an edge joining V to G-V, then we don\'92t have a connected graph.  This is part of the empty cut lemma.  If a cut is empty, the graph is unconnected.\
+\
+It is the minimum ST because each edge that Prim chooses is guaranteed to be within the MST of G.  This is because any edge that is a minimum edge crossing a cut in the graph must be part of the MST.  If there was an alternative edge to choose, it would need to be part of a cycle in order to map to the same chunk of G-V, and the edge would have higher cost, so it would not be part of the MST.\
+\
+
+\b Implementation
+\b0  can be done in O(mn) naively (n iterations, checking m edges for minimum).  If we use a 
+\b heap
+\b0  data structure, storing the nodes rather than the edges, this reduces to O(m logn).  We have the elements representing nodes not in V, and the key of the node is the minimum link to V.  This requires updating of keys at every iteration.
+\b\fs28 \
+\
+\
+Kruskal\'92s algorithm (and union-find)\
+\
+
+\b0\fs24 Also calculates an MST in a time complication competitive with Prim\'92s algorithm, using a new data structure, the union-find.\
+\
+Kruskal works by ordering all the edges in increasing length, then iterating through them, joining the edge into the MST as long as it does not create a cycle.  This creates a tree, because we know it cannot create cycles by construction.  It also creates a spanning tree: all edges are considered and only rejected if they create a cycle, ie the endpoints are already spanned together.  It is a minimum spanning tree because of the ordering of edges: for any cut, the first edge across it that Kruskal will accept will be the minimum edge crossing the cut.\
+\
+The time 
+\b complexity
+\b0  starts with O(m log n) to sort the edges (where m = O(n^2)).  We then have a loop over all edges where we have to check for cycle creation at each edge (which is an O(n) operation, using BFS), adding O(m n) complexity.  This is not great and can be improved by using a 
+\b union-find
+\b0 .  This structure supports a find operation in O(1), in which we report the label of the connected component, and the union operation where we join two connected components.  The O(1) find operation reduces the complexity of the loop to O(m).  However, the union operation involves potentially relabelling up to n/2 points (ie: at the final step), which is O(n).  This can be reduced to O(log n) by noting the following: each node will only be relabelled a maximum of O(log n) times.  Summing over all nodes, we have O(n logn) re-labellings in union events.  We therefore deduce that the initial
+\b  O(m log n) 
+\b0 sort operation dominates the scaling.\
+\
+\
+
+\b\fs28 Single-link clustering
+\b0\fs24 \
+\
+Kruskal can be used for clustering by considering the distance between point pairs as being a link in a graph.  You then agglomerate the points using Kruskal until the desired number of disconnected trees (clusters) is found.\
+\
+
+\b\fs28 Huffman codes\
+
+\b0\fs24 \
+These allow you to 
+\b compress
+\b0  the storage of a data with a particular alphabet.  The approach is to encode the elements as a series if binary bits, where you can have different numbers of bits for different symbols in the alphabet.  A key point is that we require the codes to be 
+\b prefix free
+\b0 : we cannot allow some encodings to be prefixes of others, as this may cause confusion.\
+\
+The Huffman algorithm constructs prefix free codes by building a binary tree structure where each symbol is leaf of the tree (this ensures the codes are prefix free).  The algorithm attempts to minimize the average encoding length by ensuring that frequently used symbols have short encodings, while rarely used symbols can have longer ones.  Huffman (1952) achieves this by building the tree bottom upwards, by greedily selecting the 
+\b lowest frequency
+\b0  2 symbols to merge with a prefix meta-symbol.  At later stages, we consider the new meta symbol as a new symbol for the purposes of deciding the next merge.\
+\
+Concretely, if a symbol \'91a\'92 has probability p_a, and \'91b\'92 has probability p_b, and \'91c\'92 has length p_c, and we merge a and b with a meta symbol, then the average encoding length will scale with:  (p_a+p_b)*2 + p_c*1\
+In this example, the code for c is 0, the code for a is 10 and b is 11.\
+\
+To 
+\b prove
+\b0  this, we start with the base case: a 2 symbol alphabet.  In this case, the symbols get codes 0 and 1 and are clearly optimal.  We then need an inductive argument that assumes as usual that all previous steps were optimal.  So we need to consider the case of a 3 symbol alphabet.\
+\
+We then note that adding a meta-symbol adds only a constant factor to the length of the document, independent of the tree structure we already had.  To see this, consider the symbols a and b with depth d+1.  We must show that the change in the document length of a tree T with separate a and b, and a tree T\'92 with merged a and b, is independent of d.  L(T\'92) - L(T) = p(a)*(d+1) + p(b)(d+1) - p(ab)d = p(a)+p(b),  ie: independent of d.\
+This is important, because it means that our merger minimizes the average compression length over all trees where a and b were siblings.\
+\
+Then we need a lemma that proves that we are producing an optimal tree, where a and b being siblings is optimal.  To prove this, we proceed by exchange, considering an optimal tree T* where a and b are the lowest frequency symbols at this iteration, but instead a different pair, x and y were merged together.  How does it compare to our Huffman tree T\'92?  The difference in average compression lengths is:\
+\
+L(T*) - L(T\'92) = (px - pa)*(depth of x in T* - depth of a in T*)\
+                       + (py-pb)*(depth of y in T* - depth of b in T* )\
+\
+In the above, px-pa >= 0 by definition, likewise py-pb >= 0.  Also the depth difference are both >=0, because in T* x and y by definition have greater depth than a and b.  Therefore L(T*)-L(T\'92) >= 0, so our Huffman tree is equal to or better. QED\
+\
+In terms of
+\b  running time
+\b0 , the naive implementation of the above is O(n^2), as we must insert a new pa+pb into the symbol frequency list, extract pa and pb, then find new minimums for the next iteration, all of which scales as O(n), and must be repeated for each symbol.  This can be reduced to 
+\b O(n logn) by using a heap 
+\b0 structure to support O(log n) insert and extract-min operation.}

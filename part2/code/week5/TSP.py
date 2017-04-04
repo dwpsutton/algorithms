@@ -1,6 +1,7 @@
 from itertools import combinations
 from copy import deepcopy
 from math import sqrt
+from prims import prims
 
 __author__= 'David Sutton'
 
@@ -62,12 +63,16 @@ def tsp_naive(distance,n):
     return min(finalSet)
 
 
-def lower_bound(sp):
+
+
+def lower_bound(sp,distance):
     '''
-        Implement this (Prims)!
-        input is of structure (remainder of tour, current vertex, cost of tour to vertex)
+        Uses Prim's algorithm to return cost of MST of remainder of tour.  This is added to
+        minimum cost edge from current vertex to remainder of tour, and the minimum cost edge
+        from the remainder of tour to the end point node (0).
+        input is of structure (remainder of tour, current vertex, cost of tour to vertex), and distance matrix
     '''
-    return None
+    return prims(sp[0],distance) + min( [ distance[sp[1],i] for i in sp[0] ] ) + min( [distance[0,i] for i in sp[0] ] )
 
 def branch_and_bound(distance,n):
     '''
@@ -78,6 +83,7 @@ def branch_and_bound(distance,n):
         steps into active sub-problems, only if it is possible for the solution to be 
         better than one you already have.  This way you avoid useless sub-trees and 
         reduce the space being explored relative to brute-force search.
+        TODO: implement lower_bound.  Check whether base case cost correct for full a->a journey.
     '''
     # Data structure: stack of subproblems, each containing:
     #  (remainder of tour, current vertex, cost of tour to vertex)
@@ -85,7 +91,7 @@ def branch_and_bound(distance,n):
     #
     bestSoFar= sum(distance.values)+1
     while len(subProblems) > 0:
-        if lower_bound( subProblems[-1] ) > bestSoFar:
+        if lower_bound( subProblems[-1], distance ) > bestSoFar:
             # Unnecessary sub-tree, remove from stack
             del subProblems[-1]
         else:

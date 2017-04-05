@@ -6,22 +6,22 @@ from prims import prims
 __author__= 'David Sutton'
 
 
-fname= 'data.txt'
+fname= 'test2.txt'
 
 def read_nodes(fname):
     x= []
     y= []
     with open(fname,'rb') as f:
         n= int(f.next())
-        ctr=0
+        #ctr=0
         for line in f:
             fields= map(float, line.split(' '))
             x.append( fields[0] )
             y.append( fields[1] )
-            if ctr > 18:
-                break
-            ctr+=1
-    n=18
+                #if ctr > 18:
+                #break
+                #ctr+=1
+    #n=18
     return x,y,n
 
 def distances(x,y):
@@ -83,14 +83,15 @@ def branch_and_bound(distance,n):
         steps into active sub-problems, only if it is possible for the solution to be 
         better than one you already have.  This way you avoid useless sub-trees and 
         reduce the space being explored relative to brute-force search.
-        TODO: implement lower_bound.  Check whether base case cost correct for full a->a journey.
+        TODO: debug prims module.  Without lower bound, this algo is numerically identical to naive on test data.
     '''
     # Data structure: stack of subproblems, each containing:
     #  (remainder of tour, current vertex, cost of tour to vertex)
     subProblems= [ (range(1,n), 0, 0.) ]
     #
-    bestSoFar= sum(distance.values)+1
+    bestSoFar= sum(distance.values())+1
     while len(subProblems) > 0:
+        print subProblems
         if lower_bound( subProblems[-1], distance ) > bestSoFar:
             # Unnecessary sub-tree, remove from stack
             del subProblems[-1]
@@ -104,13 +105,13 @@ def branch_and_bound(distance,n):
             if len(toExplore) == 1:
                 # Base case: is a complete solution, update best solution if its been improved
                 childNode= toExplore[0]
-                cost= parentCost + distance[parentNode,childNode]
+                cost= parentCost + distance[parentNode,childNode] + distance[childNode,0]
                 if cost < bestSoFar:
                     bestSoFar= cost
             else:
                 # Add children of subtree root to active sub-problem stack
                 for childNode in toExplore:
-                    newSubProblem= toExplore
+                    newSubProblem= deepcopy(toExplore)
                     newSubProblem.remove(childNode)
                     subProblems.append( ( newSubProblem,
                                           childNode,
@@ -122,7 +123,7 @@ def branch_and_bound(distance,n):
 def main():
     x,y,n= read_nodes(fname)
     distance= distances(x,y)
-    minDist= tsp_naive(distance,n)
+    minDist= branch_and_bound(distance,n)
     print minDist
 
 if __name__=='__main__':

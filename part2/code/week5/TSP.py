@@ -6,22 +6,17 @@ from prims import prims
 __author__= 'David Sutton'
 
 
-fname= 'test2.txt'
+fname= 'data.txt'
 
 def read_nodes(fname):
     x= []
     y= []
     with open(fname,'rb') as f:
         n= int(f.next())
-        #ctr=0
         for line in f:
             fields= map(float, line.split(' '))
             x.append( fields[0] )
             y.append( fields[1] )
-                #if ctr > 18:
-                #break
-                #ctr+=1
-    #n=18
     return x,y,n
 
 def distances(x,y):
@@ -72,7 +67,7 @@ def lower_bound(sp,distance):
         from the remainder of tour to the end point node (0).
         input is of structure (remainder of tour, current vertex, cost of tour to vertex), and distance matrix
     '''
-    return prims(sp[0],distance) + min( [ distance[sp[1],i] for i in sp[0] ] ) + min( [distance[0,i] for i in sp[0] ] )
+    return sp[2] + prims(sp[0],distance) + min( [ distance[sp[1],i] for i in sp[0] ] ) + min( [distance[0,i] for i in sp[0] ] )
 
 def branch_and_bound(distance,n):
     '''
@@ -83,7 +78,7 @@ def branch_and_bound(distance,n):
         steps into active sub-problems, only if it is possible for the solution to be 
         better than one you already have.  This way you avoid useless sub-trees and 
         reduce the space being explored relative to brute-force search.
-        TODO: debug prims module.  Without lower bound, this algo is numerically identical to naive on test data.
+        Runtime approx 45secs on hwork data using pypy.
     '''
     # Data structure: stack of subproblems, each containing:
     #  (remainder of tour, current vertex, cost of tour to vertex)
@@ -91,8 +86,8 @@ def branch_and_bound(distance,n):
     #
     bestSoFar= sum(distance.values())+1
     while len(subProblems) > 0:
-        print subProblems
-        if lower_bound( subProblems[-1], distance ) > bestSoFar:
+        lb= lower_bound( subProblems[-1], distance )
+        if lb > bestSoFar:
             # Unnecessary sub-tree, remove from stack
             del subProblems[-1]
         else:

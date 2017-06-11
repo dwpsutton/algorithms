@@ -1,0 +1,98 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1404\cocoasubrtf470
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{hyphen\}}{\leveltext\leveltemplateid1\'01\uc0\u8259 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid1}}
+{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}}
+\paperw11900\paperh16840\margl1440\margr1440\vieww28600\viewh15280\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\b\fs28 \cf0 Heuristics for Knapsack\
+
+\b0\fs24 \
+A 
+\b greedy heuristic
+\b0  might order the items by v_i / w_i, then add them into the knapsack until the next item does not fit.  This is the 2-step greedy heuristic.  This falls down in an example where we have W=1000, [v_1 = 2, w_1=1], [v_2= 500, w_2=500].  We end up with value 2, not value 500.\
+\
+To fix this, we add a third step, which takes either the solution from the 2-step greedy algorithm, or the highest value item that can fit in the knapsack in isolation (whichever has highest value).\
+\
+This actually provides a performance guarantee!  If the 3-step algorithm kept choosing the 2-setp, we know after k additions of step 2, the sum value for the first k items must either be better than taking item k+1 on its own, or the 3 step algorithm will take k+1 in isolation.  So V_(3 step) >= v_(k+1). \
+Simultaneously, the value of the 3 step algorithm must be better or equal to the value of the first k items (again, by the check, if this was not the case, we would have taken a better single item in isolation).  So V_(3 step) >= sum_(1..k)( v_i).\
+\
+therefore 2*V(3 step) >= sum_(1..k+1)( v_i ).\
+\
+Maybe only some fraction of k+1 fits in the knapsack, in which case we know the value of 1..k plus the fraction of k+1 must be at least an optimal fill.  So the above proves that the 3 step algorithm has value >= 1/2 the optimal value, making it a (1-epsilon) guaranteed solution with epsilon=0.5.\
+\
+\
+A 
+\b dynamic programming heuristic 
+\b0 notes that if the values of the items were integers, we could solve in running time O(n^2 max(v_i) ).  Assuming this is the case, we can solve the correct problem almost optimally by solving the incorrect problem (where items values are integers) optimally.\
+\
+We choose a number m, then round each value down to the nearest multiple of m, then divide by m to get that multiplier, which is a guaranteed integer.\
+\
+The O(n^2 max(v_i)) dynamic algorithm does 2 for loops, one over the number of packed items i=1..n, and another over a feasible target total value of packed items, x=0..n*v_max\
+It stores the value A[i,x], which is minimum total weight required to fit i items and return a value >=x.\
+The recurrence per iteration is A[i , x]= min( A[i-1,x]  ,  w_i + A[i-1, x-v_i] ), where the first option excludes item i, the second one includes it.\
+\
+How do we choose m to do this transformation? We choose 
+\b m= epsilon v_max / n
+\b0 .  Where does this come from? Consider that the transformed value v*_i must satisfy  v_i - m <= m v*_i <= v_i. \
+\
+Our optimal solution value for our transformed problem is sum_(i in A*)\{ v*_i) >= sum(i in A)\{v*i\}, ie: better than the optimal solution to the original problem applied to the transformed weights.  So what is the optimal solution to the transformed problem applied to the original weights, relative to the original optimal solution?\
+\
+max lag must be   m*sum(i in A)\{ v*i \} - nm\
+\
+For original problem solution A and v_i, and transformed problem solution A* and v*, note that:\
+\
+sum_(i in A*)\{ v_i) >= m * sum(i in A*)\{v*_i\} >= m * sum(i in A)\{v*_i\} >= sum(i in A)\{v_i - m\}\
+\
+So we can choose epsilon such that sum(i in A*)\{v_i\} >= (1-epsilon) sum(i in A)\{v_i\}\
+\'85so we choose mn <= epsilon * sum(i in A)\{v_i\}\
+Note that the smallest optimal solution value must be v_max, so mn <= epsilon * v_max.  QED.\
+\
+Impact on running time?  O(n^2 v*_max) = O(n^2 mn/ (m epsilon) ) = 
+\b O(n^3 / epsilon)
+\b0 \
+\
+\
+
+\b\fs28 Local search\
+
+\b0\fs24 \
+A family of heuristics that aim to find a locally optimal solution to an np-complete problem, with some epsilon performance guarantee, in polynomial time.  The general idea is to start with a test solution, find the \'91neighbours\'92 of that solution, and test neighbours to see if the neighbour is better than your current solution (moving to the neighbour if so), and iterating the process until no neighbour improves upon the solution.  A neighbour is typically a solution that differs from the current one in the minimum possible way.  So for cuts, this would be swapping one vertex from one side to another, for TSP this would be changing two edges, and for 2SAT this would be changing one boolean flag.  Some general guidelines:\
+- how to pick starting solution? You could use another heuristic, as above, then use local search to improve the solution if possible.  Or you could Monte-Carlo sample starting solutions.\
+- how to pick between multiple superior neighbours? You could choose randomly, or choose the one that offers the biggest improvement, or something more complicated..\
+- how to define neighbours? Depends on speed vs performance: larger neighbourhoods take longer to search, but may yield better optima\'85\
+\
+Note local search can produce terrible optima and can be slow to converge (check smoothing analysis though\'85).\
+\
+
+\b Maximum-cut problem\
+
+\b0 \
+Like min-cut problem (which had solution in Karger\'92s algorithm) for minimum number of edges spanning a cut, except you need the largest number of edges spanning a possible cut.  Solution is np complete, unless the graph is bi-partite.  The expected number of crossing edges of a random cut is half the total number if edges: <edges> = 1/2 . |E|.  This can be proven by noting a randomly selected edge has a 50% chance of being cut by a randomly selected cut.  Linearity of expectation over this produces our expectation.\
+\
+The local search algorithm starts with a randomly selected cut A,B.  Each vertex is considered, comparing the number of crossing edges between A and B (C_v) incident on v and the number of non-crossing edges (d_v) incident on v,  If d_v > C_v, we move the vertex between groups, knowing we are guaranteed to increase the number of crossing edges by d_v - C_v.  This is an execution of a while loop, executed a max n choose 2 times, so it admits a P solution.  It\'92s performance is num_crossing_edges >= 1/2 |E|.  This is not amazing, but provides a guarantee that the solution is equal to or better than the expectation of a randomly selected cut.  The proof starts by noting for any vertex, d_v <= C_v, so the sum over all vertices for the final cut AB is sum_v d_v <= sum_v C_v.  These sums count each non crossing (lhs) and crossing (rhs) edges twice, so 2*#non crossing <= 2*#crossing.  If we add 2*#crossing to each side, 2*|E| <= 4*#crossing, so #crossing >= 1/2*|E| .qed\
+\
+\
+
+\b SAT problems\
+
+\b0 \
+\pard\tx220\tx720\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\li720\fi-720\pardirnatural\partightenfactor0
+\ls1\ilvl0\cf0 A SAT problem consists of n Boolean variables x_1\'85x_n, and a set of m literal constraints.  The notation v defines logical or, and ^ defines logical and.  Our m literals may then look like (x1 v `x2) ^ (x2 v x3), which would be satisfied by x1=True and x3= True,\
+with no concern over value of x2.  Here `means \'91not\'92.  This example is a 2SAT problem, as the literals have two terms.  2SAT is P and 3SAT is the canonical NP-complete problem.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+
+\b Papadimitriou\'92s algorithm
+\b0  for 2SAT (early 90s).  Repeat log_2 n times a 2n^2 for loop where we either accept a satisfying solution, or randomly choose an unsatisfied clause to invert one of the boolean variables in it.  If you never get a satisfiable solution at end of log_2n attempts, claim that the problem is unsatisfiable.  This is guaranteed O(n^2 logn), and is always correct on unsatisfiable instances (no FP).  Does it have low probability of a FN Yes: p= 1-1/n\
+\
+At any given point, we have a number of steps (switches) that need to be made to reach a solution.  If both variables in our literal is wrong, then we definitely move closer to the optimal solution.  If only 1 is wrong, there is a 50% chance we will move closer to the solution by making a switch.  This draw us to a similar situation to progress on a line when random walking forward or back.  One can prove* the expected number of integer steps to point n is exactly n^2, and thence that the probability of reaching step n after 2*n^2 steps is p= 1/2.  Using this analysis in our 2SAT algorithm, the probability of getting to our satisying solution if it exists in each one of the log_2 n starting points is 1/2.  So the probability of failure becomes (1/2)^(log_2 n) = 1/n.  So success prob is 1-1/n.\
+\
+*This proof works by considering that at each step i, the expected number of steps to get from i to n is E(i)= E(i-1) + 2.  Summing the difference between neighbouring steps over all steps (basically integrating), we get to 2n^2/2 = n^2.\
+\
+\
+\
+\
+\
+}
